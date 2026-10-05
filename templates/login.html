@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Sign In · FinPrint AI{% endblock %}
+{% block public_content %}
+<section class="auth-layout">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="logo-badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <path d="M12 18v-4"></path>
+                    <path d="M9 15h6"></path>
+                </svg>
+            </span>
+            <p class="eyebrow" style="justify-content: center;">Sign In</p>
+            <h1>Welcome back</h1>
+            <p class="muted">Sign in to continue to FinPrint AI.</p>
+        </div>
+
+        <form method="post" novalidate id="login-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required autofocus>
+
+            <label for="password">Password</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+                <button class="password-toggle-btn js-toggle-password" type="button" data-target="password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <button class="btn btn-primary btn-block btn-lg" type="submit">
+                    <span>Sign In</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+        </form>
+
+        <p class="form-foot">
+            Need an account? <a href="{{ url_for('register') }}">Create an account</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Create Account · FinPrint AI{% endblock %}
+{% block public_content %}
+<section class="auth-layout">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="logo-badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <path d="M12 18v-4"></path>
+                    <path d="M9 15h6"></path>
+                </svg>
+            </span>
+            <p class="eyebrow" style="justify-content: center;">Get Started</p>
+            <h1>Create your account</h1>
+            <p class="muted">Get started with financial document reviews and hospital bill checks.</p>
+        </div>
+
+        <form method="post" novalidate id="register-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label for="name">Full Name</label>
+            <input id="name" name="name" type="text" placeholder="e.g. Alex Morgan" autocomplete="name" required autofocus>
+
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required>
+
+            <label for="password">Password</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" placeholder="8–128 characters" minlength="8" maxlength="128" autocomplete="new-password" required>
+                <button class="password-toggle-btn js-toggle-password" type="button" data-target="password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <label for="confirm_password">Confirm Password</label>
+            <div class="password-field">
+                <input id="confirm_password" name="confirm_password" type="password" placeholder="Re-enter your password" minlength="8" maxlength="128" autocomplete="new-password" required>
+                <button class="password-toggle-btn js-toggle-password" type="button" data-target="confirm_password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <button class="btn btn-primary btn-block btn-lg" type="submit">
+                    <span>Create Account</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+        </form>
+
+        <p class="form-foot">
+            Already have an account? <a href="{{ url_for('login') }}">Sign in instead</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

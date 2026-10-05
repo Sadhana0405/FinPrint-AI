@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Hospital Bill Verifier · FinPrint AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero-top">
+        <div>
+            <p class="eyebrow">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Hospital Document Review
+            </p>
+            <h1>Hospital Bill Verifier</h1>
+            <p class="lede">Compare medicine quantities across a bill and supporting documents.</p>
+        </div>
+    </div>
+</section>
+
+<form class="workspace" method="post" enctype="multipart/form-data" novalidate id="hospital-form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="notice-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <div>
+            <strong>1. Upload supporting documents:</strong> Add any available bill, prescription or pharmacy receipt. PDF, JPG, JPEG or PNG · {{ config.MAX_UPLOAD_SIZE_MB }} MB per file · {{ config.MAX_REQUEST_SIZE_MB }} MB per request. Manual entry is also available.
+        </div>
+    </div>
+
+    <div class="evidence-grid">
+        <!-- Evidence 1: Hospital Bill -->
+        <section class="evidence-card">
+            <div class="evidence-card-header">
+                <div class="evidence-card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h3>Hospital Bill</h3>
+                </div>
+            </div>
+            <p class="card-subtext">Itemized bill or discharge invoice · PDF, JPG, JPEG or PNG</p>
+            <div class="dropzone compact" data-dropzone>
+                <input class="dropzone-input" name="hospital_bill" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Select hospital bills">
+                <div class="dropzone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="dropzone-copy">
+                    <strong>Add Hospital Bill</strong>
+                    <p>PDF, JPG, JPEG, or PNG</p>
+                    <button type="button" class="btn btn-secondary btn-sm" data-browse>Browse Bill</button>
+                </div>
+                <ul class="file-chip-list" data-chip-list aria-live="polite"></ul>
+            </div>
+        </section>
+
+        <!-- Evidence 2: Doctor Prescription -->
+        <section class="evidence-card">
+            <div class="evidence-card-header">
+                <div class="evidence-card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3>Prescription</h3>
+                </div>
+            </div>
+            <p class="card-subtext">Prescription slip or medication order · PDF, JPG, JPEG or PNG</p>
+            <div class="dropzone compact" data-dropzone>
+                <input class="dropzone-input" name="prescription" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Select prescriptions">
+                <div class="dropzone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="dropzone-copy">
+                    <strong>Add Prescription</strong>
+                    <p>PDF, JPG, JPEG, or PNG</p>
+                    <button type="button" class="btn btn-secondary btn-sm" data-browse>Browse Rx</button>
+                </div>
+                <ul class="file-chip-list" data-chip-list aria-live="polite"></ul>
+            </div>
+        </section>
+
+        <!-- Evidence 3: Medicine Purchase Proof -->
+        <section class="evidence-card">
+            <div class="evidence-card-header">
+                <div class="evidence-card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h3>Purchase Proof</h3>
+                </div>
+            </div>
+            <p class="card-subtext">Pharmacy receipt or cash memo · PDF, JPG, JPEG or PNG</p>
+            <div class="dropzone compact" data-dropzone>
+                <input class="dropzone-input" name="medicine_proof" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple aria-label="Select medicine purchase evidence">
+                <div class="dropzone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="dropzone-copy">
+                    <strong>Add Purchase Proof</strong>
+                    <p>PDF, JPG, JPEG, or PNG</p>
+                    <button type="button" class="btn btn-secondary btn-sm" data-browse>Browse Receipts</button>
+                </div>
+                <ul class="file-chip-list" data-chip-list aria-live="polite"></ul>
+            </div>
+        </section>
+    </div>
+
+    <!-- Manual Medicine Entry Section -->
+    <section class="manual-medicine-card">
+        <div class="panel-head" style="margin-bottom: 4px;">
+            <div>
+                <h2>2. Add medicine details manually</h2>
+                <p class="muted">Optional. Use this if you do not have a readable supporting document.</p>
+            </div>
+        </div>
+
+        <div id="medicine-rows" class="medicine-rows-wrap">
+            <div class="medicine-row">
+                <label class="sr-only" for="med-name-0">Medicine name</label>
+                <input id="med-name-0" name="medicine_name" type="text" placeholder="e.g. Paracetamol 650mg, Meropenem 1g">
+                <label class="sr-only" for="med-qty-0">Quantity</label>
+                <input id="med-qty-0" name="quantity" type="text" placeholder="e.g. 10 tablets, 2 vials">
+                <button type="button" class="remove-row-btn" aria-label="Remove medicine row" title="Remove row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <button id="add-medicine" class="btn btn-secondary btn-sm" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Add Another Medicine</span>
+        </button>
+    </section>
+
+    <div class="prompt-card">
+        <label class="prompt-label" for="instruction">3. Add an optional review focus</label>
+        <p class="prompt-helper">Add context to help organize the review.</p>
+        <textarea id="instruction" name="instruction" rows="3" placeholder="For example: compare the billed medicines with the prescription."></textarea>
+        <div class="prompt-chips">
+            <span class="prompt-chips-label">Suggestions:</span>
+            <button type="button" class="prompt-chip" data-prompt-chip="Check whether billed medicines match the doctor's prescription" data-target="instruction">Bill vs prescription</button>
+            <button type="button" class="prompt-chip" data-prompt-chip="Cross-verify purchased pharmacy medicines against hospital invoice" data-target="instruction">Purchase quantities</button>
+            <button type="button" class="prompt-chip" data-prompt-chip="Highlight unlisted charges, consumables, or potential duplicate items" data-target="instruction">Potential duplicates</button>
+        </div>
+    </div>
+
+    <div class="workspace-actions">
+        <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">
+            <span>4. Verify Evidence</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+    </div>
+</form>
+{% endblock %}

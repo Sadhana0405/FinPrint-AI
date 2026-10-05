@@ -1,0 +1,77 @@
+<!-- Edit Review Title Modal -->
+<div class="modal-backdrop" id="edit-title-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-edit-heading">
+        <div class="modal-header">
+            <h3 id="modal-edit-heading">Edit Review Title</h3>
+            <button type="button" class="icon-btn modal-close" aria-label="Close modal">&times;</button>
+        </div>
+        <form method="post" id="edit-title-form" action="">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-body">
+                <label for="edit-title-input" class="prompt-label" style="font-size:0.88rem;">Review Title / Friendly Name</label>
+                <input type="text" id="edit-title-input" name="title" required maxlength="255" class="modal-input" placeholder="e.g. LIC Policy — 2026 Review">
+                <p class="muted" style="font-size:0.8rem; margin-top:8px;">Changing the title will not change your uploaded files or review.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Title</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Single Review Confirmation Modal -->
+<div class="modal-backdrop" id="delete-confirm-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-delete-heading">
+        <div class="modal-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="danger-badge-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+                    </svg>
+                </div>
+                <h3 id="modal-delete-heading">Delete Review Record</h3>
+            </div>
+            <button type="button" class="icon-btn modal-close" aria-label="Close modal">&times;</button>
+        </div>
+        <form method="post" id="delete-analysis-form" action="">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-body">
+                <p style="color:var(--ink-primary); font-size:0.95rem;">Are you sure you want to delete <strong id="delete-item-title">this review</strong>?</p>
+                <p class="muted" style="font-size:0.84rem; margin-top:8px; line-height:1.5;">This will permanently remove the review and its uploaded files. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" class="btn btn-danger">Permanently Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Clear All Review History Confirmation Modal -->
+<div class="modal-backdrop" id="delete-all-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-delete-all-heading">
+        <div class="modal-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="danger-badge-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>
+                    </svg>
+                </div>
+                <h3 id="modal-delete-all-heading">Clear All Review History</h3>
+            </div>
+            <button type="button" class="icon-btn modal-close" aria-label="Close modal">&times;</button>
+        </div>
+        <form method="post" action="{{ url_for('delete_all_history') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-body">
+                <p style="color:var(--ink-primary); font-size:0.95rem;"><strong>Warning:</strong> You are about to permanently delete all saved reviews and their uploaded files.</p>
+                <p class="muted" style="font-size:0.84rem; margin-top:8px; line-height:1.5;">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="submit" class="btn btn-danger">Yes, Delete All History</button>
+            </div>
+        </form>
+    </div>
+</div>

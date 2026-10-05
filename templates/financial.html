@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Financial Document Analyzer · FinPrint AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero-top">
+        <div>
+            <p class="eyebrow">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Financial Document Review
+            </p>
+            <h1>Financial Document Analyzer</h1>
+            <p class="lede">Upload documents to review fees, risks and important conditions.</p>
+        </div>
+    </div>
+</section>
+
+<form class="workspace" method="post" enctype="multipart/form-data" novalidate id="financial-form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="panel">
+        <div class="panel-head" style="margin-bottom: 8px;">
+            <div>
+                <h2>1. Select documents</h2>
+                <p class="muted">Choose one or more financial documents to review.</p>
+            </div>
+        </div>
+
+        <div class="dropzone" data-dropzone>
+            <input class="dropzone-input" id="documents" name="documents" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple required aria-label="Select financial documents">
+            <div class="dropzone-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </div>
+            <div class="dropzone-copy">
+                <strong>Drop files here or browse</strong>
+                <p>PDF, JPG, JPEG or PNG · {{ config.MAX_UPLOAD_SIZE_MB }} MB per file · {{ config.MAX_REQUEST_SIZE_MB }} MB per request</p>
+                <button type="button" class="btn btn-secondary btn-sm" data-browse>Browse Files</button>
+            </div>
+            <ul class="file-chip-list" data-chip-list aria-live="polite"></ul>
+        </div>
+
+    </div>
+
+    <div class="prompt-card">
+        <label class="prompt-label" for="instruction">2. Add optional review instructions</label>
+        <p class="prompt-helper">Tell us which terms you want to focus on.</p>
+        <textarea id="instruction" name="instruction" rows="3" placeholder="For example: focus on fees, lock-in terms and risks."></textarea>
+        <div class="prompt-chips">
+            <span class="prompt-chips-label">Suggestions:</span>
+            <button type="button" class="prompt-chip" data-prompt-chip="Check fees, expense ratio and exit loads" data-target="instruction">Fees &amp; exit loads</button>
+            <button type="button" class="prompt-chip" data-prompt-chip="Identify lock-in period and withdrawal penalties" data-target="instruction">Lock-in &amp; penalties</button>
+            <button type="button" class="prompt-chip" data-prompt-chip="Find major policy exclusions and claim restrictions" data-target="instruction">Key exclusions</button>
+            <button type="button" class="prompt-chip" data-prompt-chip="Surface risk factors and guaranteed vs non-guaranteed returns" data-target="instruction">Risk disclosures</button>
+        </div>
+    </div>
+
+    <div class="workspace-actions">
+        <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">
+            <span>3. Review Documents</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Account Settings · FinPrint AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero-top">
+        <div>
+            <p class="eyebrow">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                Account
+            </p>
+            <h1>Account Settings</h1>
+            <p class="lede">Manage your account details and password.</p>
+        </div>
+    </div>
+</section>
+
+<div class="settings-grid">
+    <!-- User Profile Card -->
+    <section class="panel">
+        <div class="setting-profile-card">
+            <div class="setting-avatar" aria-hidden="true">
+                {{ user.name[0] | upper if user.name else 'U' }}
+            </div>
+            <div>
+                <h2>{{ user.name }}</h2>
+                <span class="status-pill" style="margin-top: 4px;">Account active</span>
+            </div>
+        </div>
+
+        <div class="setting-rows">
+            <div class="setting-row">
+                <span>Full Name</span>
+                <strong>{{ user.name }}</strong>
+            </div>
+            <div class="setting-row">
+                <span>Email Address</span>
+                <strong>{{ user.email or "—" }}</strong>
+            </div>
+            <div class="setting-row">
+                <span>Account Created</span>
+                <strong>{{ formatted_date or "—" }}</strong>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+            <form method="post" action="{{ url_for('logout') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-secondary" type="submit">Logout</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Account and system information -->
+    <section class="panel">
+        <div class="panel-head" style="margin-bottom: 8px;">
+            <div>
+                <h2>System Information</h2>
+                <p class="muted">Supported documents and service status.</p>
+            </div>
+        </div>
+
+        <div class="setting-rows">
+            <div class="setting-row">
+                <span>Database Connection</span>
+                <strong>{{ database_status }} · MySQL</strong>
+            </div>
+            <div class="setting-row">
+                <span>Maximum Upload Size</span>
+                <strong>{{ max_upload_size_mb }} MB per file · {{ max_request_size_mb }} MB total · {{ max_files_per_review }} files/review</strong>
+            </div>
+            <div class="setting-row">
+                <span>Supported File Formats</span>
+                <strong>PDF, JPG, JPEG, PNG</strong>
+            </div>
+            <div class="setting-row">
+                <span>Document Text</span>
+                <strong>PDF text extraction</strong>
+            </div>
+        </div>
+
+    </section>
+</div>
+
+<section class="panel" style="margin-top:20px;">
+    <h2>Change Password</h2>
+    <p class="muted">Verify your current password before setting a new one.</p>
+    <form method="post" action="{{ url_for('change_password') }}" class="password-change-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label for="current_password">Current password</label>
+        <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
+        <label for="new_password">New password</label>
+        <input id="new_password" name="new_password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+        <label for="confirm_password">Confirm new password</label>
+        <input id="confirm_password" name="confirm_password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+        <button class="btn btn-primary" type="submit" style="margin-top:16px;">Change Password</button>
+    </form>
+</section>
+{% endblock %}

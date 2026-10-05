@@ -1,0 +1,7 @@
+Flask
+python-dotenv
+mysql-connector-python
+PyPDF2
+google-genai
+Pillow
+Werkzeug

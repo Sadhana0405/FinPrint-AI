@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Review History · FinPrint AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero-top">
+        <div>
+            <p class="eyebrow">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Saved Reviews
+            </p>
+            <h1>Review History</h1>
+            <p class="lede">Your saved financial and hospital document reviews.</p>
+        </div>
+        <div class="workspace-actions" style="margin-top: 0;">
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('financial') }}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>New Financial Review</span>
+            </a>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('hospital') }}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>New Hospital Review</span>
+            </a>
+            {% if records %}
+            <button class="btn btn-danger-outline btn-sm" type="button" data-delete-all>Clear History</button>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if records %}
+<!-- Search and Filter Bar -->
+<div class="history-filter-bar">
+    <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input class="search-input" id="history-search" type="search" placeholder="Search by document name, module, or status..." aria-label="Search reviews">
+    </div>
+    <div class="filter-pills" role="group" aria-label="Filter by module">
+        <button type="button" class="filter-pill is-active" aria-pressed="true" data-filter-module="all">All ({{ records | length }})</button>
+        <button type="button" class="filter-pill" aria-pressed="false" data-filter-module="financial">Financial</button>
+        <button type="button" class="filter-pill" aria-pressed="false" data-filter-module="hospital">Hospital</button>
+    </div>
+</div>
+
+<!-- Desktop Table View -->
+<div class="panel desktop-table-wrap" style="padding: 0; overflow: hidden;">
+    <div class="table-wrap" style="border: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Document</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                {% set recent_title = record.title if record.title and record.title != "Hospital Billing Review" else (record.doc_list[0] if record.doc_list else "Manual input") %}
+                <tr data-module="{{ record.module_type }}">
+                    <td>
+                        <span class="module-badge">
+                            {% if record.module_type == 'financial' %}
+                                <svg class="module-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            {% else %}
+                                <svg class="module-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                            {% endif %}
+                            <span>{{ "Financial" if record.module_type == "financial" else "Hospital" }}</span>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="doc-name-cell" title="{{ recent_title }}">{{ recent_title }}</span>
+                    </td>
+                    <td>
+                        <span class="muted">{{ record.formatted_date or record.created_at }}</span>
+                    </td>
+                    <td>
+                        <span class="status-pill">{{ record.status }}</span>
+                    </td>
+                    <td>
+                        <div class="history-row-actions">
+                        <a class="btn btn-secondary btn-sm" href="{{ url_for('result', analysis_id=record.id) }}">
+                            <span>View</span>
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </a>
+                        <button class="btn btn-secondary btn-sm" type="button"
+                                data-edit-title
+                                data-action="{{ url_for('edit_title', analysis_id=record.id) }}"
+                                data-title="{{ record.display_title }}">Edit</button>
+                        <button class="btn btn-danger-outline btn-sm" type="button"
+                                data-delete-analysis
+                                data-action="{{ url_for('delete_analysis', analysis_id=record.id) }}"
+                                data-title="{{ record.display_title }}">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Mobile Cards View -->
+<div class="history-cards-mobile">
+    {% for record in records %}
+    {% set recent_title = record.title if record.title and record.title != "Hospital Billing Review" else (record.doc_list[0] if record.doc_list else "Manual input") %}
+    <article class="history-card-mobile" data-module="{{ record.module_type }}">
+        <div class="history-card-header">
+            <span class="module-badge" style="font-size:0.78rem;">
+                {% if record.module_type == 'financial' %}
+                    <svg class="module-badge-icon" style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                {% else %}
+                    <svg class="module-badge-icon" style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                {% endif %}
+                <span>{{ "Financial" if record.module_type == "financial" else "Hospital" }}</span>
+            </span>
+            <span class="status-pill">{{ record.status }}</span>
+        </div>
+        <div class="history-card-doc" title="{{ recent_title }}">{{ recent_title }}</div>
+        <div class="history-card-date">{{ record.formatted_date or record.created_at }}</div>
+        <div class="history-row-actions" style="justify-content:flex-start;margin-top:8px;">
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('result', analysis_id=record.id) }}">View</a>
+            <button class="btn btn-secondary btn-sm" type="button"
+                    data-edit-title
+                    data-action="{{ url_for('edit_title', analysis_id=record.id) }}"
+                    data-title="{{ record.display_title }}">Edit</button>
+            <button class="btn btn-danger-outline btn-sm" type="button"
+                    data-delete-analysis
+                    data-action="{{ url_for('delete_analysis', analysis_id=record.id) }}"
+                    data-title="{{ record.display_title }}">Delete</button>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="panel">
+    <div class="empty-state">
+        <div class="empty-state-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <h3>No Review History Yet</h3>
+        <p>Your saved financial document and hospital bill reviews will appear here.</p>
+        <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+            <a class="btn btn-primary" href="{{ url_for('financial') }}">Analyze a Financial Document</a>
+            <a class="btn btn-secondary" href="{{ url_for('hospital') }}">Review a Hospital Bill</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

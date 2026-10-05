@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}{{ display_title }} · FinPrint AI{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero-top">
+        <div>
+            <p class="eyebrow">{{ module_label }}</p>
+            <h1>{{ display_title }}</h1>
+            <p class="lede">{{ parsed.summary or "This saved review does not contain a structured result." }}</p>
+        </div>
+        <div class="workspace-actions" style="margin-top:0;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">Print</button>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('history') }}">Review History</a>
+        </div>
+    </div>
+</section>
+
+<div class="result-hero-bar" aria-label="Review metadata">
+    <div class="result-meta-grid">
+        <div class="result-meta-item"><span class="label">Review ID</span><strong>#{{ analysis.id }}</strong></div>
+        <div class="result-meta-item"><span class="label">Created</span><strong>{{ formatted_date }}</strong></div>
+        <div class="result-meta-item">
+            <span class="label">Status</span>
+            <span class="status-pill {% if 'Mismatch' in status %}badge-mismatch{% elif 'Consistent' in status %}badge-match{% elif 'review' in status|lower or 'Insufficient' in status %}badge-verification{% else %}badge-info{% endif %}">
+                {% if 'Mismatch' in status %}Mismatch{% elif 'Consistent' in status %}Match{% elif 'review' in status|lower or 'Insufficient' in status %}Needs Review{% else %}Information{% endif %}
+            </span>
+        </div>
+        <div class="result-meta-item"><span class="label">Source files</span><strong>{{ documents|length }}</strong></div>
+    </div>
+</div>
+
+<div class="result-grid">
+    {% if parsed.module_type == "legacy" and parsed.legacy_text %}
+    <article class="result-panel span-2">
+        <div class="result-panel-header"><h2>Legacy review content</h2></div>
+        <p class="file-status">This review was saved in an earlier format.</p>
+        <pre class="analysis-evidence">{{ parsed.legacy_text }}</pre>
+    </article>
+    {% endif %}
+
+    <article class="result-panel">
+        <div class="result-panel-header"><h2>Summary</h2></div>
+        <p>{{ parsed.summary or "No summary is available." }}</p>
+        {% if parsed.instruction %}
+        <p class="muted" style="margin-top:12px;">Requested focus: {{ parsed.instruction }}</p>
+        {% endif %}
+        {% if parsed.ai_status %}
+        <p class="file-status" style="margin-top:12px;">{{ parsed.ai_status }}</p>
+        {% endif %}
+    </article>
+
+    <article class="result-panel">
+        <div class="result-panel-header"><h2>Findings</h2></div>
+        {% if analysis.module_type == "hospital" %}
+            {% for finding in parsed.findings or [] %}
+            <div class="analysis-finding">
+                <strong class="status-pill {% if 'Mismatch' in finding.status %}badge-mismatch{% elif 'Consistent' in finding.status %}badge-match{% elif finding.severity == 'INFO' %}badge-info{% else %}badge-verification{% endif %}">
+                    {% if 'Mismatch' in finding.status %}Mismatch{% elif 'Consistent' in finding.status %}Match{% elif finding.severity == 'INFO' %}Information{% else %}Needs Review{% endif %}
+                </strong>
+                <p>{{ finding.type }}: {{ finding.item }}</p>
+                {% if finding.bill_value is not none %}<p>Bill: {{ finding.bill_value }}</p>{% endif %}
+                {% if finding.supporting_value is not none %}<p>Supporting evidence: {{ finding.supporting_value }}</p>{% endif %}
+                {% if finding.difference is not none %}<p>Difference: {{ "%+g"|format(finding.difference) }}</p>{% endif %}
+                <p>{{ finding.explanation }}</p>
+                {% if finding.evidence %}
+                <div class="finding-evidence">
+                    {% for evidence in finding.evidence %}
+                    <p class="file-status">
+                        {{ evidence.source_type }}: {{ evidence.source_document }}
+                        {% if evidence.page %} · page {{ evidence.page }}{% else %} · Page reference unavailable{% endif %}
+                        · {{ evidence.value }}
+                        {% if evidence.price is not none %} · amount {{ evidence.price }}{% endif %}
+                    </p>
+                    <blockquote>{{ evidence.quote }}</blockquote>
+                    {% endfor %}
+                </div>
+                {% elif finding.type == "Missing supporting evidence" %}
+                <p class="file-status">Supporting evidence not found in uploaded documents.</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="muted">No comparable line items were extracted. This is not a finding that charges are correct.</p>
+            {% endfor %}
+        {% else %}
+            {% for finding in parsed.key_findings or [] %}
+            <div class="analysis-finding">
+                <strong>{{ finding.category }}</strong>
+                <p>{{ finding.quote }}</p>
+                <p class="file-status">{{ finding.source_document }} · page {{ finding.page }}</p>
+            </div>
+            {% else %}
+            <p class="muted">No source-backed keyword excerpts were found in readable text.</p>
+            {% endfor %}
+        {% endif %}
+    </article>
+
+    {% if analysis.module_type == "financial" %}
+    <article class="result-panel span-2">
+        <div class="result-panel-header"><h2>Document field checks</h2></div>
+        <p class="muted">Keyword-limited checks of extracted text; absence here does not prove the term is absent from the original document.</p>
+        <ul class="checkpoint-list">
+            {% for check in parsed.document_checks or [] %}
+            <li class="checkpoint-item">
+                <span><strong>{{ check.field }}:</strong> {{ check.status|replace("_", " ")|title }}</span>
+                {% for evidence in check.evidence %}
+                <small class="file-status">{{ evidence.source_document }} · page {{ evidence.page }} · {{ evidence.quote }}</small>
+                {% endfor %}
+            </li>
+            {% endfor %}
+        </ul>
+    </article>
+    <article class="result-panel span-2">
+        <div class="result-panel-header"><h2>Additional Interpretation</h2></div>
+        {% if parsed.ai_interpretation %}
+            <p>{{ parsed.ai_interpretation.summary }}</p>
+            <dl class="analysis-finding">
+                <dt>Document type</dt><dd>{{ parsed.ai_interpretation.document_type }}</dd>
+                <dt>Product or fund</dt><dd>{{ parsed.ai_interpretation.product_or_fund_name }}</dd>
+                <dt>Investment amount</dt><dd>{{ parsed.ai_interpretation.investment_amount }}</dd>
+            </dl>
+            {% for key in ["fees_and_charges", "important_conditions", "risks", "positive_points", "items_requiring_review", "questions_to_check"] %}
+                {% if parsed.ai_interpretation[key] %}
+                <h3 style="margin-top:14px;">{{ key|replace("_", " ")|title }}</h3>
+                <ul class="checkpoint-list">
+                    {% for item in parsed.ai_interpretation[key] %}<li class="checkpoint-item"><span>{{ item }}</span></li>{% endfor %}
+                </ul>
+                {% endif %}
+            {% endfor %}
+            {% if parsed.ai_interpretation.evidence_references %}
+            <h3 style="margin-top:14px;">Validated AI evidence references</h3>
+            {% for reference in parsed.ai_interpretation.evidence_references %}
+            <blockquote class="analysis-finding">
+                <p>{{ reference.quote }}</p>
+                <p class="file-status">{{ reference.source_document }} · page {{ reference.page }}</p>
+            </blockquote>
+            {% endfor %}
+            {% endif %}
+            <p class="file-status">AI-generated interpretation can be inaccurate. Verify the cited source text.</p>
+        {% else %}
+            <p class="muted">No additional interpretation is available for this review.</p>
+        {% endif %}
+    </article>
+    {% endif %}
+
+    <article class="result-panel span-2">
+        <div class="result-panel-header"><h2>Source Documents</h2></div>
+        {% for document in documents %}
+        <details class="analysis-finding">
+            <summary><strong>{{ document.type }} · {{ document.filename }}</strong></summary>
+            <p class="file-status">{{ document.message }}</p>
+            {% if document.storage_key %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('analysis_file', analysis_id=analysis.id, filename=document.storage_key.split('/')[-1]) }}">Download original</a>
+            {% endif %}
+            {% if document.pages %}
+            <details class="source-text-details">
+                <summary>Show extracted source text ({{ document.pages|length }} pages)</summary>
+                {% for page in document.pages %}
+                <details style="margin-top:8px;">
+                    <summary>Page {{ page.page }}</summary>
+                    <pre class="analysis-evidence">{{ page.text }}</pre>
+                </details>
+                {% endfor %}
+            </details>
+            {% endif %}
+        </details>
+        {% else %}
+        <p class="muted">No source documents were stored with this review.</p>
+        {% endfor %}
+        {% if parsed.extracted_items %}
+        <h3 style="margin-top:16px;">Extracted comparison items</h3>
+        {% for item in parsed.extracted_items %}
+        <div class="analysis-finding">
+            <strong>{{ item.name }} — {{ item.quantity }} {{ item.unit }}</strong>
+            {% if item.price is not none %}<p>Extracted amount: {{ item.price }}</p>{% endif %}
+            <p class="file-status">{{ item.source_document }}{% if item.page %} · page {{ item.page }}{% endif %}</p>
+            <blockquote>{{ item.quote }}</blockquote>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </article>
+
+    <article class="result-panel span-2">
+        <div class="result-panel-header"><h2>Limitations</h2></div>
+        <ul class="checkpoint-list">
+            {% for limitation in parsed.limitations or [] %}<li class="checkpoint-item"><span>{{ limitation }}</span></li>{% endfor %}
+        </ul>
+        <p class="muted" style="margin-top:12px;">This tool does not provide financial, medical, or legal advice and does not determine fraud or misconduct. Confirm important matters with a qualified professional.</p>
+    </article>
+
+    <div class="result-panel span-2 workspace-actions">
+        <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Dashboard</a>
+        {% if analysis.module_type == "financial" %}
+        <a class="btn btn-primary" href="{{ url_for('financial') }}">New financial review</a>
+        {% else %}
+        <a class="btn btn-primary" href="{{ url_for('hospital') }}">New hospital review</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
